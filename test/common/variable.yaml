@@ -1,0 +1,6 @@
+weather_url: http://172.22.30.145:30880
+user: 'Jenkins'
+buildname: 'Weather_Test_B001'
+testlinkAPI: 'a81ec91265f4d017b639512df8312069'
+tplan_id: 2
+internalid: 4

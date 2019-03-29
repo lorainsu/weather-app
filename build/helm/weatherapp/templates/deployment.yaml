@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    appgroup: default
+  name: weatherappdeploy
+  namespace: {{.Values.env.project}}
+spec:
+  replicas: {{.Values.replicas}}
+  selector: {}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: "weatherapp"
+      annotations:
+        metrics.alpha.kubernetes.io/custom-endpoints: '[{"path":"","port":"","names":""}]'
+        scheduler.alpha.kubernetes.io/affinity: '{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"demo.node","operator":"In","values":["weatherapp"]}]}]}}}'
+    spec:
+      containers:
+      - image: '{{.Values.weatherapp.image}}'
+        imagePullPolicy: IfNotPresent
+        name: container1
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1000Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        securityContext: {}
+        terminationMessagePath: /dev/termination-log
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
