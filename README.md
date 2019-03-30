@@ -1,4 +1,4 @@
-# Weather APP Demo Based on Sprint Boot
+# Weather APP Demo Based on Spring Boot
 
 ## Getting Started
 
