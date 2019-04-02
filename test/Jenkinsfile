@@ -2,7 +2,7 @@ def label = "cpe.${env.JOB_NAME}.${env.BUILD_NUMBER}".replace('-', '_').replace(
 def  rf_passThreshold=100
 def  rf_unstableThreshold=90
 
-podTemplate(label: label, containers: [
+podTemplate(label: label, cloud: "fusionstage", containers: [
     containerTemplate(name: 'robotframework', image: '172.22.242.160:20202/cpe-repo/robotframework:1.0.3',ttyEnabled: true, command: '/bin/sh')
   ], 
  yaml: """
