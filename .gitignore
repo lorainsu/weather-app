@@ -1,0 +1,27 @@
+# Output Directory
+target/
+
+# Java
+*.class
+*.jar
+*.war
+
+# Zip files
+*.rar
+*.zip
+*.tar
+*.tar.gz
+
+# Eclipse
+.settings/
+.classpath
+.project
+
+# IDEA
+.idea/
+*.iml
+
+# log and trace
+*.log
+*.trace
+

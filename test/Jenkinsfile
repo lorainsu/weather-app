@@ -1,6 +1,6 @@
 def label = "cpe.${env.JOB_NAME}.${env.BUILD_NUMBER}".replace('-', '_').replace('/', '_')
 def  rf_passThreshold=100
-def  rf_unstableThreshold=90
+def  rf_unstableThreshold=40
 
 podTemplate(label: label, cloud: "fusionstage", containers: [
     containerTemplate(name: 'robotframework', image: '172.22.242.160:20202/cpe-repo/robotframework:1.0.3',ttyEnabled: true, command: '/bin/sh')
@@ -15,18 +15,18 @@ spec:
 """) {
  
     node(label) {
-        stage('拉取源码'){
+        stage('source'){
             checkout([$class: 'GitSCM', 
             branches: [[name: '*/master']], 
             doGenerateSubmoduleConfigurations: false, 
             extensions: [[$class: 'RelativeTargetDirectory', 
-            relativeTargetDir: 'CPEAutoTestScript']],
+            relativeTargetDir: 'weather-app']],
             submoduleCfg: [], 
-            userRemoteConfigs: [[credentialsId: 'f00464731', url: 'http://code-sh.rnd.huawei.com/f00464731/CPEAutoTestScript.git']]])
+            userRemoteConfigs: [[credentialsId: 'lorainsu', url: 'http://github.com/lorainsu/weather-app.git']]])
         }
-        stage('RF测试'){
+        stage('test'){
              container('robotframework') {
-                dir(env.WORKSPACE+"/CPEAutoTestScript")
+                dir(env.WORKSPACE+"/weather-app/test")
                 {
                     sh "pybot --variablefile common/variable.yaml script/DailyDevOps || true"
                     step(
