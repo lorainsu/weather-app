@@ -1,72 +1,73 @@
-def label = "weather-app-${env.BUILD_NUMBER}"
-def branch="master"
+def software_repo = "172.22.30.90:20202"
+def repo_namespace = "cpe-repo"
 
+def label = "weather-app-${env.BUILD_NUMBER}"
 podTemplate(label: label, cloud: "fusionstage", containers: [
-	containerTemplate(name: 'jnlp', image: "172.22.30.90:20202/cpe-repo/jnlp-slave:alpine", args: '${computer.jnlpmac} ${computer.name}'),
-    containerTemplate(name: 'docker', image: '172.22.30.90:20202/cpe-repo/cpe-docker:1.11.2',ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'maven', image: '172.22.30.90:20202/cpe-repo/maven:3.6.0-jdk-8-alpine', ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'robotframework', image: '172.22.30.90:20202/cpe-repo/robotframework:1.0.3',ttyEnabled: true, command: '/bin/sh')
+  containerTemplate(name: 'jnlp', image: "${software_repo}/${repo_namespace}/jnlp-slave:alpine", args: '${computer.jnlpmac} ${computer.name}'),
+    containerTemplate(name: 'docker', image: "${software_repo}/${repo_namespace}/cpe-docker:1.11.2", ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'maven', image: "${software_repo}/${repo_namespace}/maven:3.6.0-jdk-8-alpine", ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'robotframework', image: "${software_repo}/${repo_namespace}/robotframework:1.0.3", ttyEnabled: true, command: '/bin/sh')
   ], 
   volumes: [
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
     hostPathVolume(mountPath: '/opt/maven-repo', hostPath: '/opt/maven-repo')
- ],
- yaml: """
-spec:
-  securityContext:
-    runAsUser: 0
-  nodeSelector:
-    tool.jenkins-slave: jenkins-slave
-""") {
+  ],
+  yaml: """
+    spec:
+      securityContext:
+        runAsUser: 0
+      nodeSelector:
+        tool.jenkins-slave: jenkins-slave
+  """) {
 
-    node(label) {
-        stage('CodeCheckout'){
-            checkout([$class: 'GitSCM', 
-              branches: [[name: "${branch}"]], 
-              doGenerateSubmoduleConfigurations: false,
-              submoduleCfg: [], 
-              userRemoteConfigs: [[credentialsId: 'lorainsu', url: 'https://github.com/lorainsu/weather-app.git']]])
-            sh 'rm -rf /opt/maven-repo/*'
-            sh 'unzip build/lib/maven-repo.zip -d /opt/maven-repo'
-        }
-        stage('Junit') {
-            container('maven') {
-                dir(env.WORKSPACE){
-                    sh 'mvn clean test -s build/settings.xml'
-                 }
-            }
-        }
-   
-        stage('CodeAnalysis') {
-            container('maven') {
-                dir(env.WORKSPACE){
-                   withSonarQubeEnv('sonarqube') {
-                     sh "mvn sonar:sonar -Dsonar.projectName=weather-app  -Dsonar.projectKey=weather-app -s build/settings.xml"
-                   }
-				   timeout(time: 10, unit: 'MINUTES') {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                        }
-                    }
-                }
-            }
-        }
-        stage('Compile') {
-            container('maven') {
-                dir(env.WORKSPACE) {
-                    sh "mvn clean package -Dmaven.test.skip=true -s build/settings.xml"
-                }
-            }
-            container('docker') {
-                dir(env.WORKSPACE){
-				  sh "mkdir -p tmp"
-				  sh "cp target/weather-app-0.0.1-SNAPSHOT.jar tmp/sample.jar && cp build/Dockerfile tmp/"
-				  sh "docker build -t weather-app:${env.BUILD_NUMBER} tmp/"
-				  sh "docker save weather-app:${env.BUILD_NUMBER} > weather.tar"
-				  uploadImage(imageAddr: "${env.WORKSPACE}/weather.tar", loginType: 'CURRENT', namespace: 'cpe-repo')
-				}
-            }
-        }
+  node(label) {
+    stage('CodeCheckout'){
+      checkout([$class: 'GitSCM', 
+          branches: [[name: "master"]], 
+          doGenerateSubmoduleConfigurations: false,
+          submoduleCfg: [], 
+          userRemoteConfigs: [[credentialsId: 'lorainsu', url: 'https://github.com/lorainsu/weather-app.git']]])
+      sh 'rm -rf /opt/maven-repo/*'
+      sh 'unzip build/lib/maven-repo.zip -d /opt/maven-repo'
     }
+    stage('Junit') {
+      container('maven') {
+        dir(env.WORKSPACE){
+          sh 'mvn clean test -s build/settings.xml'
+        }
+      }
+    }
+   
+    stage('CodeAnalysis') {
+      container('maven') {
+        dir(env.WORKSPACE){
+          withSonarQubeEnv('sonarqube') {
+            sh "mvn sonar:sonar -Dsonar.projectName=weather-app  -Dsonar.projectKey=weather-app -s build/settings.xml"
+          }
+          timeout(time: 10, unit: 'MINUTES') {
+            def qg = waitForQualityGate()
+            if (qg.status != 'OK') {
+              error "Pipeline aborted due to quality gate failure: ${qg.status}"
+            }
+          }
+        }
+      }
+    }
+    stage('Compile') {
+      container('maven') {
+        dir(env.WORKSPACE) {
+          sh "mvn clean package -Dmaven.test.skip=true -s build/settings.xml"
+        }
+      }
+      container('docker') {
+        dir(env.WORKSPACE){
+          sh "mkdir -p tmp"
+          sh "cp target/weather-app-0.0.1-SNAPSHOT.jar tmp/sample.jar && cp build/Dockerfile tmp/"
+          sh "docker build -t weather-app:${env.BUILD_NUMBER} tmp/"
+          sh "docker save weather-app:${env.BUILD_NUMBER} > weather.tar"
+          uploadImage(imageAddr: "${env.WORKSPACE}/weather.tar", loginType: 'CURRENT', namespace: "${repo_namespace}")
+        }
+      }
+    }
+  }
 }
