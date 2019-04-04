@@ -8,7 +8,6 @@ target/
 
 # Zip files
 *.rar
-*.zip
 *.tar
 *.tar.gz
 
