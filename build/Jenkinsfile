@@ -61,7 +61,7 @@ spec:
             container('docker') {
                 dir(env.WORKSPACE){
 				  sh "mkdir -p tmp"
-				  sh "cp target/weather-app-0.0.1-SNAPSHOT.jar tmp/sample.jar && cp .build/Dockerfile tmp/"
+				  sh "cp target/weather-app-0.0.1-SNAPSHOT.jar tmp/sample.jar && cp build/Dockerfile tmp/"
 				  sh "docker build -t weather-app:${env.BUILD_NUMBER} tmp/"
 				  sh "docker save weather-app:${env.BUILD_NUMBER} > weather.tar"
 				  uploadImage(imageAddr: "${env.WORKSPACE}/weather.tar", loginType: 'CURRENT', namespace: 'cpe-repo')
