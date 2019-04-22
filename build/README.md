@@ -1,9 +1,4 @@
 ## Before we start
-
-On default, JDK1.8 is needed. 
-If you want to use JDK1.7, exec ```git apply jdk7.patch``` to enable it.
-
-
 Please modify those settings before compile the application
 
 - Dockerfile<br>
