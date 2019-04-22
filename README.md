@@ -14,9 +14,7 @@
   - openjdk
 3. On default, JDK1.8 is needed.<br>
 If you want to use JDK1.7, execute command below to enable it:
-```
-git apply jdk7.patch
-```
+> git apply jdk7.patch
 
 ## Getting Started
 
