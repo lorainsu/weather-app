@@ -1,7 +1,5 @@
 package com.example.weather.web;
 
-import java.time.Instant;
-
 import com.example.weather.integration.ows.Weather;
 import com.example.weather.integration.ows.WeatherEntry;
 import com.example.weather.integration.ows.WeatherService;
@@ -35,30 +33,22 @@ public class WeatherApiControllerTest {
 	public void weather() throws Exception {
 		Weather weather = new Weather();
 		weather.setName("London");
-		setWeatherEntry(weather, 286.72, 800, "01d", Instant.ofEpochSecond(1553675407));
+		setWeatherEntry(weather, 286.72, 800, "01d", 1553675407L);
 		given(this.weatherService.getWeather("uk", "london")).willReturn(weather);
 		this.mvc.perform(get("/api/weather/now/uk/london"))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.name", is("London")))
-				.andExpect(jsonPath("$.temperature", is(286.72)))
-				.andExpect(jsonPath("$.weatherId", is(800)))
-				.andExpect(jsonPath("$.weatherIcon", is("01d")));
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.name", is("London")))
+			.andExpect(jsonPath("$.temperature", is(286.72)))
+			.andExpect(jsonPath("$.weatherId", is(800)))
+			.andExpect(jsonPath("$.weatherIcon", is("01d")));
 		verify(this.weatherService).getWeather("uk", "london");
 	}
 
-	private static WeatherEntry createWeatherEntry(double temperature, int id, String icon,
-			Instant timestamp) {
-		WeatherEntry entry = new WeatherEntry();
-		setWeatherEntry(entry, temperature, id, icon, timestamp);
-		return entry;
-	}
-
-	private static void setWeatherEntry(WeatherEntry entry, double temperature, int id, String icon,
-			Instant timestamp) {
+	private static void setWeatherEntry(WeatherEntry entry, double temperature, int id, String icon, long timestamp) {
 		entry.setTemperature(temperature);
 		entry.setWeatherId(id);
 		entry.setWeatherIcon(icon);
-		entry.setTimestamp(timestamp.getEpochSecond());
+		entry.setDate(timestamp);
 	}
 
 }

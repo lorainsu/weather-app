@@ -1,7 +1,7 @@
 package com.example.weather.integration.ows;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class WeatherEntry implements Serializable {
 
-	private Instant timestamp;
+	private static final long serialVersionUID = -2812136805013178938L;
+
+	private Date date;
 
 	private double temperature;
 
@@ -18,14 +20,14 @@ public class WeatherEntry implements Serializable {
 
 	private String weatherIcon;
 
-	@JsonProperty("timestamp")
-	public Instant getTimestamp() {
-		return this.timestamp;
+	@JsonProperty("date")
+	public Date getDate() {
+		return this.date;
 	}
 
 	@JsonSetter("dt")
-	public void setTimestamp(long unixTime) {
-		this.timestamp = Instant.ofEpochMilli(unixTime * 1000);
+	public void setDate(long unixTime) {
+		this.date = new Date(unixTime);
 	}
 
 	/**
