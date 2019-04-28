@@ -14,6 +14,8 @@
   - openjdk
 3. On default, JDK1.8 is needed.
 
+   If not, you may need to generate the build/lib/maven-repo.zip file by yourself.
+
 ## Getting Started
 
 1. Compile and Deploy
