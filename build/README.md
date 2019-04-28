@@ -14,3 +14,12 @@ Please modify those settings before compile the application
   
 - Add tag to one or more nodes in FusionStage "Project Management > Node" webpage with:
   > tool.jenkins-slave: jenkins-slave
+
+- Jenkins config
+  - Jenkins slave
+  
+    Add tag to one or more nodes in FusionStage "Project Management > Node" webpage with:
+    > tool.jenkins-slave: jenkins-slave
+  - Jenkins master
+    1. Enable FusionStage IAM Auth in "SystemManage>GlobalScurityConfig>enable Security", and login again.
+    2. Config FusionStage CPE Plugin in "SystemManage>SystemConfig".
