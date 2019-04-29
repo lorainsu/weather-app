@@ -1,12 +1,12 @@
-def software_repo = "172.22.30.90:20202"
-def repo_namespace = "cpe-repo"
+def software_repo = "172.22.243.245:20202"
+def repo_namespace = "cpe-tools"
 
 def label = "weather-app-${env.BUILD_NUMBER}"
 podTemplate(label: label, cloud: "fusionstage", containers: [
-  containerTemplate(name: 'jnlp', image: "${software_repo}/${repo_namespace}/jnlp-slave:alpine", args: '${computer.jnlpmac} ${computer.name}'),
+  containerTemplate(name: 'jnlp', image: "${software_repo}/${repo_namespace}/cpe-jnlp-slave:1.0.0", args: '${computer.jnlpmac} ${computer.name}'),
     containerTemplate(name: 'docker', image: "${software_repo}/${repo_namespace}/cpe-docker:1.11.2", ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'maven', image: "${software_repo}/${repo_namespace}/maven:3.6.0-jdk-8-alpine", ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'robotframework', image: "${software_repo}/${repo_namespace}/robotframework:1.0.3", ttyEnabled: true, command: '/bin/sh')
+    containerTemplate(name: 'robotframework', image: "${software_repo}/${repo_namespace}/robotframework:3.1.1", ttyEnabled: true, command: '/bin/sh')
   ], 
   volumes: [
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
@@ -64,10 +64,14 @@ podTemplate(label: label, cloud: "fusionstage", containers: [
           sh "mkdir -p tmp"
           sh "cp target/weather-app-0.0.1-SNAPSHOT.jar tmp/sample.jar && cp build/Dockerfile tmp/"
           sh "docker build -t weather-app:${env.BUILD_NUMBER} tmp/"
+          sh "docker tag weather-app:${env.BUILD_NUMBER} weather-app:latest"
           sh "docker save weather-app:${env.BUILD_NUMBER} > weather.tar"
           uploadImage(imageAddr: "${env.WORKSPACE}/weather.tar", loginType: 'CURRENT', namespace: "${repo_namespace}")
+          sh "docker save weather-app:latest > weather-latest.tar"
+          uploadImage(imageAddr: "${env.WORKSPACE}/weather-latest.tar", loginType: 'CURRENT', namespace: "${repo_namespace}")
         }
       }
     }
   }
 }
+
