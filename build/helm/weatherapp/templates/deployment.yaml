@@ -3,11 +3,10 @@ kind: Deployment
 metadata:
   labels:
     appgroup: default
-  name: weatherappdeploy
-  namespace: {{.Values.env.project}}
+  name: weather-app
+  namespace: '{{.Values.namespace}}'
 spec:
   replicas: {{.Values.replicas}}
-  selector: {}
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -16,15 +15,16 @@ spec:
   template:
     metadata:
       labels:
-        app: "weatherapp"
+        app: "weather-app"
       annotations:
         metrics.alpha.kubernetes.io/custom-endpoints: '[{"path":"","port":"","names":""}]'
-        scheduler.alpha.kubernetes.io/affinity: '{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"demo.node","operator":"In","values":["weatherapp"]}]}]}}}'
     spec:
+      nodeSelector:
+        demo.weather: weather-app
       containers:
       - image: '{{.Values.weatherapp.image}}'
         imagePullPolicy: IfNotPresent
-        name: container1
+        name: weatherapp
         resources:
           limits:
             cpu: "1"
@@ -35,6 +35,8 @@ spec:
         securityContext: {}
         terminationMessagePath: /dev/termination-log
       dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: '{{.Values.namespace}}-secret'
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30

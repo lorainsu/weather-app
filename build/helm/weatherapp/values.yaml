@@ -1,7 +1,5 @@
 replicas: 1
+namespace: cpe-devops
 weatherapp:
-  image: 172.22.30.90:20202/cpe-repo/weather-app:1.0.0
-env:
-  project: cpe-devops  
-
+  image: 172.22.243.245:20202/cpe-tools/weather-app:latest
 
