@@ -3,10 +3,9 @@ def repo_namespace = "cpe-tools"
 
 def label = "weather-app-${env.BUILD_NUMBER}"
 podTemplate(label: label, cloud: "fusionstage", containers: [
-  containerTemplate(name: 'jnlp', image: "${software_repo}/${repo_namespace}/cpe-jnlp-slave:1.0.0", args: '${computer.jnlpmac} ${computer.name}'),
-    containerTemplate(name: 'docker', image: "${software_repo}/${repo_namespace}/cpe-docker:1.11.2", ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'maven', image: "${software_repo}/${repo_namespace}/maven:3.6.0-jdk-8-alpine", ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'robotframework', image: "${software_repo}/${repo_namespace}/robotframework:3.1.1", ttyEnabled: true, command: '/bin/sh')
+    containerTemplate(name: 'jnlp', image: "${software_repo}/${repo_namespace}/jenkins/jnlp-slave:3.27-1-alpine", args: '${computer.jnlpmac} ${computer.name}'),
+    containerTemplate(name: 'docker', image: "${software_repo}/${repo_namespace}/docker:1.11.2", ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'maven', image: "${software_repo}/${repo_namespace}/maven:3.6.0-jdk-8-alpine", ttyEnabled: true, command: 'cat')
   ], 
   volumes: [
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
