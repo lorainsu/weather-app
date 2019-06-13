@@ -6,7 +6,7 @@ metadata:
   labels:
     appgroup: ""
   name: weatherapp
-  namespace: {{.Values.env.project}}
+  namespace: {{.Values.namespace}}
 spec:
   type: NodePort
   selector: 
