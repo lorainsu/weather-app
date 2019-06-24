@@ -1,5 +1,5 @@
-def software_repo = "172.22.243.245:20202"
-def repo_namespace = "cpe-tools"
+def software_repo = "x.x.x.x:20202"
+def repo_namespace = "xxx"
 
 def label = "weather-app-${env.BUILD_NUMBER}"
 podTemplate(label: label, cloud: "fusionstage", containers: [
