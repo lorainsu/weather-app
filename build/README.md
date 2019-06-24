@@ -2,7 +2,7 @@
 Please modify those settings before compile the application
 
 - Dockerfile<br>
-  - modify the address of openjdk:<br>
+  - modify the repo address and namespace of openjdk:<br>
   >  FROM {software_repo}/{repo_namespace}/openjdk:8-jdk-alpine
 
 - Jenkinsfile<br>
