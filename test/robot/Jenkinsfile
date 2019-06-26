@@ -10,8 +10,7 @@ spec:
   securityContext:
     runAsUser: 0
   nodeSelector:
-    service.jenkins: jenkins-slave
-    os.name: SUSE_Linux_Enterprise_Server_12_SP2
+    tool.jenkins-slave: jenkins-slave
 """) {
  
     node(label) {
