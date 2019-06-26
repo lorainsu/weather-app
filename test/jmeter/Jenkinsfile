@@ -1,0 +1,35 @@
+def label = "mypod-${UUID.randomUUID().toString()}"
+podTemplate(label: label, cloud:'fusionstage', containers: [
+    containerTemplate(name: 'jnlp', image: "172.22.243.245:20202/cpe-tools/jnlp-slave:3.27-1-alpine", args: '${computer.jnlpmac} ${computer.name}'),
+    containerTemplate(name: 'jmeter', image: '172.22.243.245:20202/cpe-tools/cpe-jmeter:5.0', ttyEnabled: true, command: 'cat')
+    ],
+    volumes: [
+      hostPathVolume(mountPath: '/jmeter', hostPath: '/opt/devops/jmeter')
+    ],
+    yaml: """
+      spec:
+        securityContext:
+          runAsUser: 0
+        nodeSelector:
+          tool.jenkins-slave: jenkins-slave
+    """) {
+    node(label) {
+      stage('CodeCheckout') {
+        checkout([$class: 'GitSCM',
+            branches: [[name: "master"]],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [
+                [$class: 'RelativeTargetDirectory', relativeTargetDir: 'weather-app']
+            ],
+            submoduleCfg: [],
+            userRemoteConfigs: [[credentialsId: 'lorainsu', url: 'https://github.com/lorainsu/weather-app.git']]])
+      }
+      stage('test') {
+        container('jmeter') {
+          dir(env.WORKSPACE + "/weather-app/test/jmeter") {
+            sh "jmeter -n -t weatherapp.jmx -R jmeter-slave-1:31099 -l /jmeter/weatherapp_report.csv"
+          }
+        }
+      }
+    }
+}
