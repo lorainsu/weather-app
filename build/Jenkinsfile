@@ -1,5 +1,5 @@
-def software_repo = "x.x.x.x:20202"
-def repo_namespace = "xxx"
+def software_repo = "172.22.243.245:20202"
+def repo_namespace = "cpe-tools"
 
 def label = "weather-app-${env.BUILD_NUMBER}"
 podTemplate(label: label, cloud: "fusionstage", containers: [
@@ -16,7 +16,7 @@ podTemplate(label: label, cloud: "fusionstage", containers: [
       securityContext:
         runAsUser: 0
       nodeSelector:
-        service.jenkins: jenkins-slave
+        tool.jenkins-slave: jenkins-slave
   """) {
 
   node(label) {
