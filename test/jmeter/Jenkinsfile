@@ -1,7 +1,10 @@
+def software_repo = "172.22.243.245:20202"
+def repo_namespace = "cpe-tools"
+
 def label = "mypod-${UUID.randomUUID().toString()}"
 podTemplate(label: label, cloud:'fusionstage', containers: [
-    containerTemplate(name: 'jnlp', image: "172.22.243.245:20202/cpe-tools/jnlp-slave:3.27-1-alpine", args: '${computer.jnlpmac} ${computer.name}'),
-    containerTemplate(name: 'jmeter', image: '172.22.243.245:20202/cpe-tools/cpe-jmeter:5.0', ttyEnabled: true, command: 'cat')
+    containerTemplate(name: 'jnlp', image: "${software_repo}/${repo_namespace}/jnlp-slave:3.27-1-alpine", args: '${computer.jnlpmac} ${computer.name}'),
+    containerTemplate(name: 'jmeter', image: "${software_repo}/${repo_namespace}:5.0", ttyEnabled: true, command: 'cat')
     ],
     volumes: [
       hostPathVolume(mountPath: '/jmeter', hostPath: '/opt/devops/jmeter')
