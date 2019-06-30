@@ -1,0 +1,50 @@
+def label = "cpe.${env.JOB_NAME}.${env.BUILD_NUMBER}".replace('-', '_').replace('/', '_')
+def  rf_passThreshold=100
+def  rf_unstableThreshold=40
+
+podTemplate(label: label, cloud: "fusionstage", containers: [
+    containerTemplate(name: 'robotframework', image: '172.22.242.160:20202/cpe-repo/robotframework:1.0.3',ttyEnabled: true, command: '/bin/sh')
+  ], 
+ yaml: """
+spec:
+  securityContext:
+    runAsUser: 0
+  nodeSelector:
+    service.jenkins: jenkins-slave
+    os.name: SUSE_Linux_Enterprise_Server_12_SP2
+""") {
+ 
+    node(label) {
+        stage('source'){
+            checkout([$class: 'GitSCM', 
+            branches: [[name: '*/master']], 
+            doGenerateSubmoduleConfigurations: false, 
+            extensions: [[$class: 'RelativeTargetDirectory', 
+            relativeTargetDir: 'weather-app']],
+            submoduleCfg: [], 
+            userRemoteConfigs: [[credentialsId: 'lorainsu', url: 'http://github.com/lorainsu/weather-app.git']]])
+        }
+        stage('test'){
+             container('robotframework') {
+                dir(env.WORKSPACE+"/weather-app/test")
+                {
+                    sh "pybot --variablefile common/variable.yaml script/DailyDevOps || true"
+                    step(
+                        [
+                            $class              : 'RobotPublisher',
+                            outputPath          : '.',
+                            outputFileName      : "**/output.xml",
+                            reportFileName      : '**/report.html',
+                            logFileName         : '**/log.html',
+                            disableArchiveOutput: false,
+                            passThreshold       : "${rf_passThreshold}",
+                            unstableThreshold   : "${rf_unstableThreshold}",
+                            otherFiles          : "**/*.png,**/*.jpg",
+                        ]
+                    )
+                }        
+            }
+        }
+
+    }
+}
